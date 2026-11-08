@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Planner Diário & Cronograma Capilar</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fontes Google (Dancing Script para títulos fofos e Inter/Poppins para leitura) -->
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Comfortaa:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        petala: '#FFE5E8',
+                        rose: '#FBC4AB',
+                        chiclete: '#FF9EAA',
+                        framboesa: '#E86A92',
+                        ameixa: '#8C3A68',
+                        fundo: '#FFF7F8',
+                        cardBg: '#FFFFFF',
+                    },
+                    fontFamily: {
+                        handwriting: ['Caveat', 'cursive'],
+                        rounded: ['Comfortaa', 'sans-serif'],
+                        body: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FFF7F8;
+            background-image: radial-gradient(#FF9EAA 0.5px, transparent 0.5px), radial-gradient(#FF9EAA 0.5px, #FFF7F8 0.5px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            font-family: 'Poppins', sans-serif;
+            color: #4A2E35;
+        }
+
+        .title-handwriting {
+            font-family: 'Caveat', cursive;
+        }
+
+        .font-rounded {
+            font-family: 'Comfortaa', sans-serif;
+        }
+
+        /* Estilização suave de inputs */
+        input[type="text"], textarea, select {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px dashed #FF9EAA;
+            border-radius: 8px;
+            padding: 4px 8px;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        input[type="text"]:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #E86A92;
+            box-shadow: 0 0 8px rgba(232, 106, 146, 0.3);
+            background: #ffffff;
+        }
+
+        .planner-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            border: 2px solid #FFE5E8;
+            box-shadow: 0 4px 15px rgba(140, 58, 104, 0.05);
+            backdrop-filter: blur(5px);
+        }
+
+        /* Estilização dos emojis e baterias */
+        .selectable-option {
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+            opacity: 0.5;
+            filter: grayscale(40%);
+        }
+
+        .selectable-option:hover {
+            transform: scale(1.15);
+            opacity: 0.8;
+        }
+
+        .selectable-option.selected {
+            opacity: 1;
+            filter: grayscale(0%);
+            transform: scale(1.2);
+        }
+
+        /* Efeito Fita Adesiva / Washi Tape */
+        .washi-tape {
+            background: rgba(255, 158, 170, 0.5);
+            height: 14px;
+            width: 100px;
+            margin: 0 auto -7px auto;
+            transform: rotate(-2deg);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Scrollbar charmosa */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FFE5E8;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #E86A92;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="p-3 md:p-8 min-h-screen">
+
+    <!-- Container Principal -->
+    <div class="max-w-7xl mx-auto space-y-8">
+
+        <!-- CABEÇALHO DO PLANNER -->
+        <header class="text-center py-6 bg-white/80 rounded-3xl border-2 border-chiclete shadow-sm relative overflow-hidden">
+            <div class="absolute top-2 left-4 text-chiclete text-2xl"><i class="fa-solid font-handwriting">🌸</i></div>
+            <div class="absolute top-2 right-4 text-chiclete text-2xl"><i class="fa-solid font-handwriting">✨</i></div>
+            <h1 class="title-handwriting text-5xl md:text-6xl text-ameixa font-bold tracking-wide">Meu Planner Diário</h1>
+            <p class="font-rounded text-framboesa text-sm md:text-base mt-1">"Pequenos passos todos os dias constroem grandes mudanças 💖"</p>
+            
+            <!-- Barra de Cores de Referência / Botões -->
+            <div class="mt-4 flex flex-wrap justify-center items-center gap-2 px-4">
+                <span class="text-xs font-semibold text-ameixa mr-2">Paleta Amor em Tons:</span>
+                <span class="px-3 py-1 text-xs rounded-full bg-petala text-ameixa font-semibold shadow-sm">Pétala</span>
+                <span class="px-3 py-1 text-xs rounded-full bg-rose text-white font-semibold shadow-sm">Rosé</span>
+                <span class="px-3 py-1 text-xs rounded-full bg-chiclete text-white font-semibold shadow-sm">Chiclete</span>
+                <span class="px-3 py-1 text-xs rounded-full bg-framboesa text-white font-semibold shadow-sm">Framboesa</span>
+                <span class="px-3 py-1 text-xs rounded-full bg-ameixa text-white font-semibold shadow-sm">Ameixa</span>
+                
+                <button onclick="limparDados()" class="ml-auto text-xs bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1.5 rounded-lg transition-colors border border-red-300">
+                    <i class="fa-solid fa-trash mr-1"></i> Resetar Planner
+                </button>
+            </div>
+        </header>
+
+        <!-- NAVEGAÇÃO / TABS -->
+        <div class="flex justify-center border-b-2 border-chiclete/30 pb-2 gap-4">
+            <button onclick="switchTab('diario')" id="tab-diario" class="px-6 py-2 rounded-t-xl font-bold font-rounded text-lg transition-all border-b-4 border-ameixa text-ameixa bg-white shadow-sm">
+                🗓️ Planner Diário & Semanal
+            </button>
+            <button onclick="switchTab('capilar')" id="tab-capilar" class="px-6 py-2 rounded-t-xl font-bold font-rounded text-lg transition-all text-framboesa hover:bg-white/50">
+                💆‍♀️ Cronograma Capilar
+            </button>
+        </div>
+
+        <!-- CONTEÚDO 1: PLANNER DIÁRIO -->
+        <main id="sec-diario" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+            <!-- BLOCO 1: MINHA ROTINA (10 Linhas Fixas) -->
+            <section class="planner-card p-4 flex flex-col">
+                <div class="washi-tape"></div>
+                <h2 class="title-handwriting text-2xl text-ameixa font-bold text-center mb-3 flex items-center justify-center gap-2">
+                    <i class="fa-regular fa-clock text-framboesa"></i> Minha Rotina 💕
+                </h2>
+                <div class="space-y-2 flex-grow overflow-y-auto max-h-[550px] pr-1" id="list-rotina">
+                    <!-- Gerado via JS (10 linhas com Hora + Atividade) -->
+                </div>
+            </section>
+
+            <!-- BLOCO 2: PLANO DO DIA (Prioridades + Tarefas 10 Linhas) -->
+            <section class="planner-card p-4 flex flex-col space-y-4">
+                <div>
+                    <div class="washi-tape"></div>
+                    <h2 class="title-handwriting text-2xl text-ameixa font-bold text-center mb-2">
+                        🌸 Prioridades de Hoje
+                    </h2>
+                    <div class="space-y-2" id="list-prioridades">
+                        <!-- Gerado via JS (3 prioridades) -->
+                    </div>
+                </div>
+
+                <div class="border-t border-chiclete/30 pt-3 flex-grow">
+                    <h2 class="title-handwriting text-2xl text-ameixa font-bold text-center mb-2">
+                        📋 Tarefas (10 itens)
+                    </h2>
+                    <div class="space-y-2 overflow-y-auto max-h-[350px] pr-1" id="list-tarefas">
+                        <!-- Gerado via JS (10 tarefas com checkbox) -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- BLOCO 3: CONTROLE DE HÁBITOS + METAS & GRATIDÃO -->
+            <section class="planner-card p-4 flex flex-col space-y-4">
+                <div>
+                    <div class="washi-tape"></div>
+                    <h2 class="title-handwriting text-2xl text-ameixa font-bold text-center mb-2">
+                        🌿 Controle de Hábitos (10)
+                    </h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left">
+                            <thead>
+                                <tr class="text-framboesa border-b border-chiclete/30 text-center font-bold">
+                                    <th class="py-1 text-left">Hábito</th>
+                                    <th>S</th><th>T</th><th>Q</th><th>Q</th><th>S</th><th>S</th><th>D</th>
+                                </tr>
+                            </thead>
+                            <tbody id="list-habitos">
+                                <!-- Gerado via JS (10 Hábitos) -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="border-t border-chiclete/30 pt-2 space-y-3">
+                    <div>
+                        <label class="title-handwriting text-xl text-ameixa font-bold block">🎯 Meta da Semana</label>
+                        <textarea id="meta-semana" rows="5" class="text-sm resize-none" placeholder="Qual sua principal conquista dessa semana?"></textarea>
+                    </div>
+                    <div>
+                        <label class="title-handwriting text-xl text-ameixa font-bold block">🙏 Gratidão 💖</label>
+                        <textarea id="gratidao" rows="5" class="text-sm resize-none" placeholder="Pelo que você é grata hoje?"></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <!-- BLOCO 4: ANOTAÇÕES, ACOMPANHAMENTO E REFLEXÕES -->
+            <section class="planner-card p-4 flex flex-col space-y-4">
+                <!-- Acompanhamento (Emojis e Energias) -->
+                <div>
+                    <h2 class="title-handwriting text-2xl text-ameixa font-bold text-center mb-1">
+                        🍃 Acompanhamento
+                    </h2>
+                    
+                    <!-- Como me sinto hoje -->
+                    <div class="bg-petala/40 p-2.5 rounded-xl border border-chiclete/40 mb-3">
+                        <span class="text-xs font-semibold text-ameixa block text-center mb-1">Como me sinto hoje?</span>
+                        <div class="flex justify-between items-center px-1" id="container-humor">
+                            <div class="text-center selectable-option" onclick="selectMood(0)" title="Péssima">
+                                <span class="text-2xl">😫</span>
+                                <span class="text-[9px] block text-ameixa">Estressada</span>
+                            </div>
+                            <div class="text-center selectable-option" onclick="selectMood(1)" title="Triste">
+                                <span class="text-2xl">😢</span>
+                                <span class="text-[9px] block text-ameixa">Triste</span>
+                            </div>
+                            <div class="text-center selectable-option" onclick="selectMood(2)" title="Normal">
+                                <span class="text-2xl">😐</span>
+                                <span class="text-[9px] block text-ameixa">Normal</span>
+                            </div>
+                            <div class="text-center selectable-option" onclick="selectMood(3)" title="Bem">
+                                <span class="text-2xl">🙂</span>
+                                <span class="text-[9px] block text-ameixa">Bem</span>
+                            </div>
+                            <div class="text-center selectable-option" onclick="selectMood(4)" title="Feliz">
+                                <span class="text-2xl">😊</span>
+                                <span class="text-[9px] block text-ameixa">Feliz</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nível de energia -->
+                    <div class="bg-petala/40 p-2.5 rounded-xl border border-chiclete/40">
+                        <span class="text-xs font-semibold text-ameixa block text-center mb-1">Nível de Energia</span>
+                        <div class="flex justify-between items-center px-2" id="container-energia">
+                            <div class="text-center selectable-option" onclick="selectEnergy(0)">
+                                <span class="text-xl">🪫</span>
+                                <span class="text-[9px] block text-ameixa">Exausta</span>
+                            </div>
+                            <div class="text-center selectable-option" onclick="selectEnergy(1)">
+                                <span class="text-xl">🔋</span>
+                                <span class="text-[9px] block text-ameixa">Cansada</span>
+                            </div>
+                            <div class="text-center selectable-option" onclick="selectEnergy(2)">
+                                <span class="text-xl">🔋</span>
+                                <span class="text-[9px] block text-ameixa">Normal</span>
+                            </div>
+                            <div class="text-center selectable-option" onclick="selectEnergy(3)">
+                                <span class="text-xl">🔋</span>
+                                <span class="text-[9px] block text-ameixa">Bom</span>
+                            </div>
+                            <div class="text-center selectable-option" onclick="selectEnergy(4)">
+                                <span class="text-xl">⚡</span>
+                                <span class="text-[9px] block text-ameixa">Ótimo</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reflexões diárias -->
+                <div class="space-y-2">
+                    <div>
+                        <label class="text-xs font-semibold text-ameixa">💡 O que posso melhorar?</label>
+                        <input type="text" id="melhorar" class="text-xs">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-ameixa">✨ O que deu certo hoje?</label>
+                        <input type="text" id="deu-certo" class="text-xs">
+                    </div>
+                </div>
+
+                <!-- Blocos de Anotações (10 linhas no total) -->
+                <div class="flex-grow">
+                    <label class="title-handwriting text-2xl text-ameixa font-bold block mb-1">🌼 Anotações</label>
+                    <textarea id="anotacoes" rows="15" class="text-xs w-full leading-relaxed" placeholder="Escreva aqui suas ideias, pensamentos, lembretes... (Aproximadamente 10 linhas)"></textarea>
+                </div>
+            </section>
+
+            <!-- PLANEJAMENTO SEMANAL (Ocupa as 4 colunas abaixo) -->
+            <section class="planner-card p-5 md:col-span-3 lg:col-span-4">
+                <div class="washi-tape"></div>
+                <h2 class="title-handwriting text-3xl text-ameixa font-bold text-center mb-4">
+                    📅 Planejamento Semanal 💖
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="grid-semanal">
+                    <!-- Gerado via JS para os 7 dias + Foco da Semana -->
+                </div>
+            </section>
+
+        </main>
+
+        <!-- CONTEÚDO 2: CRONOGRAMA CAPILAR (OCULTO INICIALMENTE) -->
+        <main id="sec-capilar" class="hidden space-y-6">
+
+            <!-- Cabeçalho Cronograma -->
+            <div class="planner-card p-6 text-center bg-gradient-to-r from-petala via-white to-petala">
+                <h2 class="title-handwriting text-5xl text-framboesa font-bold mb-1">Cronograma Capilar</h2>
+                <p class="font-rounded text-ameixa text-sm">SAÚDE • BRILHO • FORÇA • VOCÊ 💆‍♀️✨</p>
+                <p class="text-xs italic text-gray-500 mt-2">"Cabelo bem cuidado também é amor próprio! Cabelo bonito tem rotina!"</p>
+            </div>
+
+            <!-- Tipos de Tratamento (Cards explicativos) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Hidratação -->
+                <div class="bg-blue-50/80 border border-blue-200 rounded-2xl p-4 shadow-sm">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-500 text-xl font-bold">💧</div>
+                        <div>
+                            <h3 class="font-bold text-blue-900 font-rounded">HIDRATAÇÃO</h3>
+                            <span class="text-[10px] bg-blue-200 text-blue-800 px-2 py-0.5 rounded-full">Reposição de Água</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-blue-800 mb-2">Repõe a água dos fios, deixando o cabelo macio, solto e brilhante.</p>
+                    <p class="text-[11px] text-blue-600 font-semibold">Ativos: aloe vera, pantenol, glicerina, babosa, etc.</p>
+                </div>
+
+                <!-- Nutrição -->
+                <div class="bg-amber-50/80 border border-amber-200 rounded-2xl p-4 shadow-sm">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 text-xl font-bold">💧</div>
+                        <div>
+                            <h3 class="font-bold text-amber-900 font-rounded">NUTRIÇÃO</h3>
+                            <span class="text-[10px] bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full">Reposição de Óleos</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-amber-800 mb-2">Devolve os óleos e lipídios, combatendo o ressecamento e o frizz.</p>
+                    <p class="text-[11px] text-amber-700 font-semibold">Ativos: óleos vegetais, manteigas, ceramidas, etc.</p>
+                </div>
+
+                <!-- Reconstrução -->
+                <div class="bg-pink-50/80 border border-pink-200 rounded-2xl p-4 shadow-sm">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-pink-500 text-xl font-bold">🧬</div>
+                        <div>
+                            <h3 class="font-bold text-pink-900 font-rounded">RECONSTRUÇÃO</h3>
+                            <span class="text-[10px] bg-pink-200 text-pink-800 px-2 py-0.5 rounded-full">Reposição de Massa</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-pink-800 mb-2">Repõe a massa capilar, fortalecendo os fios e reduzindo a quebra.</p>
+                    <p class="text-[11px] text-pink-600 font-semibold">Ativos: queratina, aminoácidos, colágeno, etc.</p>
+                </div>
+            </div>
+
+            <!-- Tabela Interativa de Lavagens (4 Semanas) -->
+            <div class="planner-card p-4 overflow-x-auto">
+                <h3 class="title-handwriting text-3xl text-ameixa font-bold mb-3 text-center">Planejamento Mensal de Lavagens</h3>
+                <table class="w-full text-sm min-w-[600px]">
+                    <thead>
+                        <tr class="bg-petala text-ameixa">
+                            <th class="p-3 text-left rounded-l-xl font-rounded">SEMANA</th>
+                            <th class="p-3 text-center font-rounded">1ª LAVAGEM</th>
+                            <th class="p-3 text-center font-rounded">2ª LAVAGEM</th>
+                            <th class="p-3 text-center rounded-r-xl font-rounded">3ª LAVAGEM</th>
+                        </tr>
+                    </thead>
+                    <tbody id="capilar-grid" class="divide-y divide-chiclete/20">
+                        <!-- Linhas geradas via JS (Semanas 1 a 4) -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Seção de Dicas, Anotações e Cuidados Extra -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Minhas Anotações Capilares (10 linhas) -->
+                <div class="planner-card p-4">
+                    <h3 class="title-handwriting text-2xl text-ameixa font-bold mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-pen-sparkles text-chiclete"></i> Minhas Anotações Capilares
+                    </h3>
+                    <textarea id="capilar-anotacoes" rows="9" class="text-xs leading-relaxed" placeholder="Registre aqui produtos favoritos, resultados de tratamentos... (10 linhas)"></textarea>
+                </div>
+
+                <!-- Dicas Extras -->
+                <div class="planner-card p-4 bg-petala/20 flex flex-col justify-between">
+                    <div>
+                        <h3 class="title-handwriting text-2xl text-framboesa font-bold mb-2">💡 Dicas Extras</h3>
+                        <ul class="text-xs text-ameixa space-y-2 list-disc list-inside font-medium">
+                            <li>Use shampoo adequado para o seu tipo de cabelo.</li>
+                            <li>Evite água muito quente na lavagem.</li>
+                            <li>Não exagere na quantidade de produto.</li>
+                            <li>Mantenha uma alimentação boa e beba bastante água.</li>
+                            <li>Proteja os fios do calor (secador, chapinha, babyliss).</li>
+                        </ul>
+                    </div>
+                    <div class="mt-4 p-2 bg-white/70 rounded-xl text-center border border-chiclete/30">
+                        <p class="title-handwriting text-xl text-framboesa font-bold">Seu cabelo, seu tempo, suas regras! ✨</p>
+                    </div>
+                </div>
+
+                <!-- Lembre-se e Ilustração -->
+                <div class="planner-card p-4 flex flex-col justify-between items-center text-center bg-gradient-to-b from-white to-petala/40">
+                    <div>
+                        <div class="washi-tape"></div>
+                        <h3 class="title-handwriting text-3xl text-ameixa font-bold mt-2 mb-1">Lembre-se:</h3>
+                        <p class="text-sm font-rounded text-framboesa italic p-3">
+                            "Cuidar do seu cabelo também é cuidar da sua autoestimar! 💖"
+                        </p>
+                    </div>
+
+                    <!-- Ícones Capilares Fofos em SVG/HTML -->
+                    <div class="flex items-end justify-center gap-4 my-4 text-chiclete">
+                        <i class="fa-solid fa-pump-soap text-4xl text-framboesa"></i>
+                        <i class="fa-solid fa-bottle-droplet text-5xl text-chiclete"></i>
+                        <i class="fa-solid fa-sparkles text-3xl text-rose"></i>
+                    </div>
+
+                    <p class="text-xs text-ameixa font-semibold">Amor próprio em cada mecha ✨</p>
+                </div>
+
+            </div>
+
+        </main>
+
+        <!-- RODAPÉ COMPARTILHADO -->
+        <footer class="text-center py-4 text-xs text-ameixa/80 font-medium">
+            <p>🌸 Seja leve. Seja gentil. Seja você. 🌸</p>
+        </footer>
+
+    </div>
+
+    <!-- SCRIPT DE LÓGICA E LOCALSTORAGE -->
+    <script>
+        // Dados Padrão (Default Data) atualizado com 12 linhas das 06:00 às 23:00
+        const defaultData = {
+            rotina: [
+                { hora: "06:00", texto: "" },
+                { hora: "07:00", texto: "" },
+                { hora: "08:00", texto: "" },
+                { hora: "09:00", texto: "" },
+                { hora: "10:00", texto: "" },
+                { hora: "11:00", texto: "" },
+                { hora: "12:00", texto: "" },
+                { hora: "14:00", texto: "" },
+                { hora: "16:00", texto: "" },
+                { hora: "18:00", texto: "" },
+                { hora: "20:00", texto: "" },
+                { hora: "23:00", texto: "" }
+            ],
+            prioridades: ["", "", ""],
+            tarefas: Array(10).fill({ texto: "", done: false }),
+            habitos: [
+                { nome: "Beber água", dias: Array(7).fill(false) },
+                { nome: "Ler", dias: Array(7).fill(false) },
+                { nome: "Treinar", dias: Array(7).fill(false) },
+                { nome: "Alimentação saudável", dias: Array(7).fill(false) },
+                { nome: "Estudar", dias: Array(7).fill(false) },
+                { nome: "Dormir bem", dias: Array(7).fill(false) },
+                { nome: "Gratidão", dias: Array(7).fill(false) },
+                { nome: "Cuidados com a pele", dias: Array(7).fill(false) },
+                { nome: "Meditar / Respirar", dias: Array(7).fill(false) },
+                { nome: "Cronograma Capilar", dias: Array(7).fill(false) }
+            ],
+            semanal: {
+                segunda: ["", "", "", ""],
+                terca: ["", "", "", ""],
+                quarta: ["", "", "", ""],
+                quinta: ["", "", "", ""],
+                sexta: ["", "", "", ""],
+                sabado: ["", "", "", ""],
+                domingo: ["", "", "", ""],
+                foco: ""
+            },
+            acompanhamento: {
+                humor: null, // Index 0-4
+                energia: null, // Index 0-4
+                melhorar: "",
+                deuCerto: ""
+            },
+            metaSemana: "",
+            gratidao: "",
+            anotacoes: "",
+            // Cronograma Capilar
+            capilarGrid: [
+                { l1: "Hidratação", l2: "Nutrição", l3: "Hidratação" },
+                { l1: "Hidratação", l2: "Hidratação", l3: "Nutrição" },
+                { l1: "Hidratação", l2: "Nutrição", l3: "Reconstrução" },
+                { l1: "Hidratação", l2: "Nutrição", l3: "Hidratação" }
+            ],
+            capilarAnotacoes: ""
+        };
+
+        // Estado da aplicação carregado do localStorage
+        let appData = JSON.parse(localStorage.getItem("meuPlannerData")) || defaultData;
+
+        // Salvar dados no LocalStorage
+        function saveData() {
+            localStorage.setItem("meuPlannerData", JSON.stringify(appData));
+        }
+
+        // Alternar Abas (Planner x Capilar)
+        function switchTab(tab) {
+            const secDiario = document.getElementById("sec-diario");
+            const secCapilar = document.getElementById("sec-capilar");
+            const tabDiario = document.getElementById("tab-diario");
+            const tabCapilar = document.getElementById("tab-capilar");
+
+            if (tab === 'diario') {
+                secDiario.classList.remove("hidden");
+                secCapilar.classList.add("hidden");
+                tabDiario.className = "px-6 py-2 rounded-t-xl font-bold font-rounded text-lg transition-all border-b-4 border-ameixa text-ameixa bg-white shadow-sm";
+                tabCapilar.className = "px-6 py-2 rounded-t-xl font-bold font-rounded text-lg transition-all text-framboesa hover:bg-white/50";
+            } else {
+                secDiario.classList.add("hidden");
+                secCapilar.classList.remove("hidden");
+                tabCapilar.className = "px-6 py-2 rounded-t-xl font-bold font-rounded text-lg transition-all border-b-4 border-ameixa text-ameixa bg-white shadow-sm";
+                tabDiario.className = "px-6 py-2 rounded-t-xl font-bold font-rounded text-lg transition-all text-framboesa hover:bg-white/50";
+            }
+        }
+
+        // --- RENDERIZADORES DO PLANNER ---
+
+        // 1. Rotina (10 Linhas)
+        function renderRotina() {
+            const container = document.getElementById("list-rotina");
+            container.innerHTML = "";
+            appData.rotina.forEach((item, index) => {
+                const div = document.createElement("div");
+                div.className = "flex items-center gap-2 text-xs";
+                div.innerHTML = `
+                    <input type="text" value="${item.hora}" class="w-16 font-semibold text-center text-ameixa bg-petala/30" onchange="updateRotina(${index}, 'hora', this.value)">
+                    <input type="text" value="${item.texto}" placeholder="Atividade..." onchange="updateRotina(${index}, 'texto', this.value)">
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updateRotina(index, field, value) {
+            appData.rotina[index][field] = value;
+            saveData();
+        }
+
+        // 2. Prioridades (3 itens)
+        function renderPrioridades() {
+            const container = document.getElementById("list-prioridades");
+            container.innerHTML = "";
+            appData.prioridades.forEach((item, index) => {
+                const div = document.createElement("div");
+                div.className = "flex items-center gap-2 text-xs font-semibold text-ameixa";
+                div.innerHTML = `
+                    <span>${index + 1}.</span>
+                    <input type="text" value="${item}" placeholder="Prioridade ${index + 1}" onchange="updatePrioridade(${index}, this.value)">
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updatePrioridade(index, value) {
+            appData.prioridades[index] = value;
+            saveData();
+        }
+
+        // 3. Tarefas (Exatamente 10 itens)
+        function renderTarefas() {
+            const container = document.getElementById("list-tarefas");
+            container.innerHTML = "";
+            appData.tarefas.forEach((item, index) => {
+                const div = document.createElement("div");
+                div.className = "flex items-center gap-2 text-xs";
+                div.innerHTML = `
+                    <input type="checkbox" ${item.done ? "checked" : ""} class="accent-framboesa w-4 h-4 rounded cursor-pointer" onchange="toggleTarefa(${index})">
+                    <input type="text" value="${item.texto}" class="${item.done ? 'line-through text-gray-400' : ''}" placeholder="Tarefa ${index + 1}..." onchange="updateTarefaTexto(${index}, this.value)">
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function toggleTarefa(index) {
+            appData.tarefas[index].done = !appData.tarefas[index].done;
+            saveData();
+            renderTarefas();
+        }
+
+        function updateTarefaTexto(index, value) {
+            appData.tarefas[index].texto = value;
+            saveData();
+        }
+
+        // 4. Hábitos (Exatamente 10 itens com S T Q Q S S D)
+        function renderHabitos() {
+            const container = document.getElementById("list-habitos");
+            container.innerHTML = "";
+            appData.habitos.forEach((habito, index) => {
+                const tr = document.createElement("tr");
+                tr.className = "border-b border-chiclete/10 hover:bg-petala/20";
+                
+                let checksHtml = "";
+                habito.dias.forEach((checked, diaIndex) => {
+                    checksHtml += `
+                        <td class="text-center py-1">
+                            <input type="checkbox" ${checked ? "checked" : ""} class="accent-framboesa w-3.5 h-3.5 rounded cursor-pointer" onchange="toggleHabitoDia(${index}, ${diaIndex})">
+                        </td>
+                    `;
+                });
+
+                tr.innerHTML = `
+                    <td class="py-1 pr-1">
+                        <input type="text" value="${habito.nome}" class="text-[11px] p-0.5 border-none bg-transparent" onchange="updateHabitoNome(${index}, this.value)">
+                    </td>
+                    ${checksHtml}
+                `;
+                container.appendChild(tr);
+            });
+        }
+
+        function toggleHabitoDia(habitoIndex, diaIndex) {
+            appData.habitos[habitoIndex].dias[diaIndex] = !appData.habitos[habitoIndex].dias[diaIndex];
+            saveData();
+        }
+
+        function updateHabitoNome(index, name) {
+            appData.habitos[index].nome = name;
+            saveData();
+        }
+
+        // 5. Planejamento Semanal
+        function renderSemanal() {
+            const container = document.getElementById("grid-semanal");
+            container.innerHTML = "";
+
+            const diasSemana = [
+                { key: "segunda", label: "SEGUNDA 💖" },
+                { key: "terca", label: "TERÇA 💖" },
+                { key: "quarta", label: "QUARTA 💖" },
+                { key: "quinta", label: "QUINTA 💖" },
+                { key: "sexta", label: "SEXTA 💖" },
+                { key: "sabado", label: "SÁBADO 💖" },
+                { key: "domingo", label: "DOMINGO 💖" }
+            ];
+
+            diasSemana.forEach(d => {
+                const card = document.createElement("div");
+                card.className = "bg-white/60 p-3 rounded-xl border border-chiclete/30 space-y-1.5";
+                
+                let inputsHtml = "";
+                appData.semanal[d.key].forEach((item, itemIndex) => {
+                    inputsHtml += `
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-chiclete inline-block"></span>
+                            <input type="text" value="${item}" class="text-xs p-1" placeholder="Item ${itemIndex + 1}" onchange="updateSemana('${d.key}', ${itemIndex}, this.value)">
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <h3 class="text-xs font-bold text-framboesa text-center border-b border-chiclete/20 pb-1 font-rounded">${d.label}</h3>
+                    <div class="space-y-1 mt-2">
+                        ${inputsHtml}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            // Card Foco da Semana
+            const focoCard = document.createElement("div");
+            focoCard.className = "bg-petala/40 p-3 rounded-xl border-2 border-chiclete flex flex-col justify-between";
+            focoCard.innerHTML = `
+                <h3 class="title-handwriting text-2xl text-ameixa font-bold text-center">foco da semana 🌿</h3>
+                <textarea class="text-xs w-full bg-white/80 p-2 rounded-lg resize-none flex-grow mt-2" rows="4" placeholder="Qual o grande objetivo dessa semana?" onchange="updateFocoSemana(this.value)">${appData.semanal.foco || ''}</textarea>
+            `;
+            container.appendChild(focoCard);
+        }
+
+        function updateSemana(diaKey, index, value) {
+            appData.semanal[diaKey][index] = value;
+            saveData();
+        }
+
+        function updateFocoSemana(val) {
+            appData.semanal.foco = val;
+            saveData();
+        }
+
+        // 6. Humor e Energia (Acompanhamento)
+        function selectMood(index) {
+            appData.acompanhamento.humor = index;
+            saveData();
+            updateMoodUI();
+        }
+
+        function updateMoodUI() {
+            const items = document.querySelectorAll("#container-humor .selectable-option");
+            items.forEach((el, i) => {
+                if (i === appData.acompanhamento.humor) {
+                    el.classList.add("selected");
+                } else {
+                    el.classList.remove("selected");
+                }
+            });
+        }
+
+        function selectEnergy(index) {
+            appData.acompanhamento.energia = index;
+            saveData();
+            updateEnergyUI();
+        }
+
+        function updateEnergyUI() {
+            const items = document.querySelectorAll("#container-energia .selectable-option");
+            items.forEach((el, i) => {
+                if (i === appData.acompanhamento.energia) {
+                    el.classList.add("selected");
+                } else {
+                    el.classList.remove("selected");
+                }
+            });
+        }
+
+        // 7. Cronograma Capilar Grid (Semanas 1 a 4)
+        function renderCapilar() {
+            const container = document.getElementById("capilar-grid");
+            container.innerHTML = "";
+
+            const tratamentos = ["Hidratação", "Nutrição", "Reconstrução", "Pausa / Umectação"];
+
+            appData.capilarGrid.forEach((sem, sIndex) => {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-petala/10";
+
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-ameixa font-rounded">Semana ${sIndex + 1}</td>
+                    <td class="p-2">
+                        <select onchange="updateCapilar(${sIndex}, 'l1', this.value)" class="text-xs font-medium">
+                            ${tratamentos.map(t => `<option value="${t}" ${sem.l1 === t ? 'selected' : ''}>${t}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td class="p-2">
+                        <select onchange="updateCapilar(${sIndex}, 'l2', this.value)" class="text-xs font-medium">
+                            ${tratamentos.map(t => `<option value="${t}" ${sem.l2 === t ? 'selected' : ''}>${t}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td class="p-2">
+                        <select onchange="updateCapilar(${sIndex}, 'l3', this.value)" class="text-xs font-medium">
+                            ${tratamentos.map(t => `<option value="${t}" ${sem.l3 === t ? 'selected' : ''}>${t}</option>`).join('')}
+                        </select>
+                    </td>
+                `;
+                container.appendChild(tr);
+            });
+        }
+
+        function updateCapilar(semanaIndex, lavagemKey, val) {
+            appData.capilarGrid[semanaIndex][lavagemKey] = val;
+            saveData();
+        }
+
+        // --- BIND DE INPUTS SIMPLES COM LOCALSTORAGE ---
+        function setupSimpleInputs() {
+            // Textareas / Inputs com IDs diretos
+            const bindInput = (id, keyPath) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                
+                // Carrega valor salvo
+                let currentVal = appData;
+                keyPath.split('.').forEach(k => currentVal = currentVal ? currentVal[k] : "");
+                el.value = currentVal || "";
+
+                // Salva ao alterar
+                el.addEventListener("input", (e) => {
+                    let keys = keyPath.split('.');
+                    let target = appData;
+                    for (let i = 0; i < keys.length - 1; i++) {
+                        target = target[keys[i]];
+                    }
+                    target[keys[keys.length - 1]] = e.target.value;
+                    saveData();
+                });
+            };
+
+            bindInput("meta-semana", "metaSemana");
+            bindInput("gratidao", "gratidao");
+            bindInput("melhorar", "acompanhamento.melhorar");
+            bindInput("deu-certo", "acompanhamento.deuCerto");
+            bindInput("anotacoes", "anotacoes");
+            bindInput("capilar-anotacoes", "capilarAnotacoes");
+        }
+
+        // Resetar dados para o padrão original
+        function limparDados() {
+            if (confirm("Deseja realmente resetar todas as suas anotações e planejamento para o padrão original?")) {
+                localStorage.removeItem("meuPlannerData");
+                appData = JSON.parse(JSON.stringify(defaultData));
+                saveData();
+                initApp();
+            }
+        }
+
+        // Inicialização Completa da Aplicação
+        function initApp() {
+            renderRotina();
+            renderPrioridades();
+            renderTarefas();
+            renderHabitos();
+            renderSemanal();
+            updateMoodUI();
+            updateEnergyUI();
+            renderCapilar();
+            setupSimpleInputs();
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
